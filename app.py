@@ -9,7 +9,7 @@ import ffmpeg
 # Load the trained model
 @st.cache_resource
 def load_model():
-    model = tf.keras.models.load_model("/Users/apple/Documents/bhava/human_action_recognition_model.h5")  # Update with the correct path
+    model = tf.keras.models.load_model("human_action_recognition_model.h5")  # Update with the correct path
     return model
 
 # Function to extract frames at 2 frames per second
