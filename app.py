@@ -13,7 +13,7 @@ imageio_ffmpeg.get_ffmpeg_version()
 
 # Function to download model if not found
 def download_model():
-    model_path = "model.h5"
+    model_path = "human_action_recognition_model.h5"
     model_url = "https://your-public-url.com/model.h5"  # Replace with actual model URL
     if not os.path.exists(model_path):
         st.write("Downloading model...")
