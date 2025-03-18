@@ -9,29 +9,32 @@ import ffmpeg
 # Load the trained model
 @st.cache_resource
 def load_model():
-    model = tf.keras.models.load_model("human_action_recognition_model.h5")  # Update with the correct path
-    return model
-
-# Load the trained model
-@st.cache_resource
-def load_model():
-    model = tf.keras.models.load_model("model.h5")  # Update with the correct path
+    model = tf.keras.models.load_model("/Users/apple/Documents/bhava/human_action_recognition_model.h5")  # Update with the correct path
     return model
 
 # Function to extract frames at 2 frames per second
 def extract_frames(video_path, fps=2):
-    vid = imageio.get_reader(video_path, 'ffmpeg')
-    meta_data = vid.get_meta_data()
-    frame_rate = meta_data['fps']
+    probe = ffmpeg.probe(video_path)
+    video_stream = next((stream for stream in probe['streams'] if stream['codec_type'] == 'video'), None)
+    frame_rate = eval(video_stream['r_frame_rate'])
     interval = int(frame_rate // fps)
-    frames = []
-    timestamps = []
     
-    for i, frame in enumerate(vid):
-        if i % interval == 0:
-            frames.append(frame)
-            timestamps.append(i / frame_rate)
+    out, _ = (
+        ffmpeg
+        .input(video_path)
+        .filter('fps', fps=fps)
+        .output('pipe:', format='rawvideo', pix_fmt='rgb24')
+        .run(capture_stdout=True, capture_stderr=True)
+    )
     
+    frame_size = (int(video_stream['width']), int(video_stream['height']))
+    frame_count = len(out) // (frame_size[0] * frame_size[1] * 3)
+    frames = [
+        np.frombuffer(out[i * frame_size[0] * frame_size[1] * 3:(i + 1) * frame_size[0] * frame_size[1] * 3], np.uint8)
+        .reshape((frame_size[1], frame_size[0], 3))
+        for i in range(frame_count)
+    ]
+    timestamps = [i / fps for i in range(frame_count)]
     return frames, timestamps
 
 # Function to preprocess frames for model input
@@ -59,7 +62,7 @@ if uploaded_video:
     st.write(f"Extracted {len(frames)} frames")
     
     results = []
-    class_labels = ['calling', 'clapping', 'cycling', 'dancing', 'drinking', 'eating', 'fighting', 'hugging', 'laughing', 'listening_to_music', 'running', 'sitting', 'sleeping', 'texting', 'using_laptop']  # Updated with actual class names
+    class_labels = ['calling', 'clapping', 'cycling', 'dancing', 'listening_to_music', 'eating', 'fighting', 'hugging', 'texting', 'drinking', 'running', 'sitting', 'sleeping', 'laughing', 'using_laptop']  # Update with actual class names
     
     for frame, timestamp in zip(frames, timestamps):
         preprocessed_frame = preprocess_frame(frame)
