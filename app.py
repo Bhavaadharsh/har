@@ -70,7 +70,7 @@ if uploaded_video:
     st.write(f"Extracted {len(frames)} frames")
     
     results = []
-    class_labels = ['calling', 'clapping', 'cycling', 'dancing', 'drinking', 'eating', 'fighting', 'hugging', 'laughing', 'listening_to_music', 'running', 'sitting', 'sleeping', 'texting', 'using_laptop']  # Updated with actual class names
+    class_labels = ['calling', 'clapping', 'cycling', 'dancing', 'listening_to_music', 'eating', 'fighting', 'hugging', 'texting', 'drinking', 'running', 'sitting', 'sleeping', 'laughing', 'using_laptop'] # Updated with actual class names
     
     for frame, timestamp in zip(frames, timestamps):
         preprocessed_frame = preprocess_frame(frame)
