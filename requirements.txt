@@ -1,5 +1,7 @@
 streamlit
-opencv-python
+opencv-python-headless
 tensorflow
 numpy
-ffmpeg
+imageio
+imageio-ffmpeg
+requests
