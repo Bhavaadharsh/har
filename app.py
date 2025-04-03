@@ -7,6 +7,7 @@ import os
 import imageio
 import imageio_ffmpeg
 import requests
+import pyttsx3
 
 # Ensure ffmpeg is available
 imageio_ffmpeg.get_ffmpeg_version()
@@ -52,6 +53,12 @@ def preprocess_frame(frame):
     frame = np.expand_dims(frame, axis=0)  # Ensure batch dimension (1, 128, 128, 3)
     return frame
 
+# Function for text-to-speech output
+def speak_text(text):
+    engine = pyttsx3.init()
+    engine.say(text)
+    engine.runAndWait()
+
 # Streamlit UI
 st.title("Video Action Recognition")
 
@@ -70,13 +77,15 @@ if uploaded_video:
     st.write(f"Extracted {len(frames)} frames")
     
     results = []
-    class_labels = ['calling', 'clapping', 'cycling', 'dancing', 'listening_to_music', 'eating', 'fighting', 'hugging', 'texting', 'drinking', 'running', 'sitting', 'sleeping', 'laughing', 'using_laptop'] # Updated with actual class names
+    class_labels = ['calling', 'clapping', 'cycling', 'dancing', 'listening_to_music', 'eating', 'fighting', 'hugging', 'texting', 'drinking', 'running', 'sitting', 'sleeping', 'laughing', 'using_laptop']
     
     for frame, timestamp in zip(frames, timestamps):
         preprocessed_frame = preprocess_frame(frame)
         predictions = model.predict(preprocessed_frame)
         predicted_class = class_labels[np.argmax(predictions)]
-        results.append(f"At {timestamp:.1f} sec: {predicted_class}")
+        result_text = f"At {timestamp:.1f} sec: {predicted_class}"
+        results.append(result_text)
+        speak_text(result_text)  # Convert text to speech
     
     st.write("Classification Results:")
     for result in results:
